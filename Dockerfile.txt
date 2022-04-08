@@ -1,0 +1,36 @@
+FROM ubuntu:bionic
+
+RUN apt-get update && apt-get install python3 tesseract-ocr python3-pip curl unzip -yf
+# Install Chrome
+RUN apt-get update -y
+#RUN apt autoremove
+RUN apt-get install -y python-pip python-dev build-essential
+RUN apt update && apt install -y libsm6 libxext6
+RUN apt-get -y install tesseract-ocr
+RUN pip install pillow
+RUN pip install opencv-contrib-python
+RUN curl https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /chrome.deb
+RUN dpkg -i /chrome.deb || apt-get install -yf
+RUN rm /chrome.deb
+RUN apt-get install -y libapache2-mod-wsgi python-dev
+RUN apt-get install -y apache2
+RUN a2enmod wsgi
+RUN apt update
+RUN apt-get install -y python3-xlib
+RUN apt-get install xvfb -yf
+RUN mkdir /app
+COPY requirements.txt /app
+COPY finalized_model.sav /app
+WORKDIR /app
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 install -r requirements.txt
+RUN pip3 install torch==1.7.0+cpu torchvision==0.8.1+cpu torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install easyocr==1.1.10
+RUN pip3 install pyyaml
+COPY . /app
+ENTRYPOINT [ "python3", "main.py" ]
+
+
+
+
+
